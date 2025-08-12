@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from pprint import pprint
 from colorama import Fore
 
+
 class SearchService:
     def __init__(self):
         self.query_rewriter = QueryRewriterAgent()
@@ -30,7 +31,7 @@ class SearchService:
 
         if not reddit_urls:
             return f"Error: No Reddit posts found"
-        
+
         print(f"Found {len(reddit_urls)} Reddit URLs. Fetching post content...")
         post_details = await self.reddit_client.get_posts_content(reddit_urls)
 
@@ -40,7 +41,7 @@ class SearchService:
             return {"error": "Could not fetch post content"}
 
         print(f"Generating consensus from {len(post_details)} posts...")
-        consensus_agent = ConsensusAgent(original_query=user_query)  
+        consensus_agent = ConsensusAgent(original_query=user_query)
         consensus = await consensus_agent.get_consensus(post_details)
 
         return {
@@ -49,9 +50,8 @@ class SearchService:
             "end_date": rewrite_result.end_date,
             "posts_analyzed": len(post_details),
             "reddit_urls": reddit_urls,  # Add the list of URLs
-            "consensus": consensus
+            "consensus": consensus,
         }
-        
 
 
 if __name__ == "__main__":
@@ -59,8 +59,7 @@ if __name__ == "__main__":
     async def main():
         orchestrator = SearchService()
         result = await orchestrator.search(
-            user_query="Friendliest dog breeds",
-            max_results=10
+            user_query="Friendliest dog breeds", max_results=10
         )
 
         print(Fore.GREEN + f"{result}" + Fore.RESET)

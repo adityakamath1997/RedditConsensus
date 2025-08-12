@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 import asyncio
 
+
 class RedditClient:
     def __init__(self):
         self.client = praw.Reddit(
@@ -31,7 +32,7 @@ class RedditClient:
         formatted_posts = []
 
         for i, post in enumerate(posts_data, 1):
-            
+
             formatted_post = f"""POST {i}:
 Title: {post['post_title']}
 Author: {post['author']}

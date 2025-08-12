@@ -17,6 +17,7 @@ app.add_middleware(
 
 app.include_router(search_router)
 
+
 @app.get("/")
 async def root():
     return {"message": "Reddit Consensus API"}
