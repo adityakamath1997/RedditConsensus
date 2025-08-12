@@ -1,6 +1,6 @@
 from agents import Agent, Runner, function_tool
 from datetime import datetime
-from backend.app.schemas.rewriter_agent import QueryRewriteOutput
+from backend.app.schemas.rewriter_schema import QueryRewriteOutput
 import asyncio
 
 
@@ -43,6 +43,6 @@ if __name__ == "__main__":
 
     async def main():
         rewriter = QueryRewriterAgent()
-        print(await rewriter.rewrite_query("PENIS"))
+        print(await rewriter.rewrite_query("test"))
 
     asyncio.run(main())

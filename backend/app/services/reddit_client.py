@@ -1,0 +1,103 @@
+import praw
+from dotenv import load_dotenv
+import os
+import asyncio
+
+load_dotenv()
+
+
+class RedditClient:
+    def __init__(self):
+        self.client = praw.Reddit(
+            client_id=os.getenv("REDDIT_CLIENT_ID"),
+            client_secret=os.getenv("REDDIT_CLIENT_SECRET"),
+            user_agent=os.getenv("REDDIT_USER_AGENT"),
+        )
+
+    async def get_posts_content(self, reddit_url_list: list[str]):
+        loop = asyncio.get_event_loop()
+
+        tasks = [
+            loop.run_in_executor(None, self._extract_single_post_details, url)
+            for url in reddit_url_list
+        ]
+
+        all_post_content = await asyncio.gather(*tasks, return_exceptions=True)
+        valid_posts = [
+            post
+            for post in all_post_content
+            if post is not None and not isinstance(post, Exception)
+        ]
+        return self._format_post_content(valid_posts)
+
+    def _format_post_content(self, posts_data):
+        formatted_posts = []
+
+        for i, post in enumerate(posts_data, 1):
+            # Create a clean text block for each post
+            formatted_post = f"""POST {i}:
+Title: {post['post_title']}
+Author: {post['author']}
+Content: {post['post_body']}
+
+Top Comments:
+"""
+
+            for j, comment in enumerate(post["top_comments"], 1):
+                formatted_post += (
+                    f"{j}. ({comment['score']} upvotes) {comment['body']}\n"
+                )
+
+            formatted_posts.append(formatted_post)
+
+        return formatted_posts
+
+    def _extract_single_post_details(self, url):
+        try:
+            submission = self.client.submission(url=url)
+
+            submission.comments.replace_more(limit=0)
+            sorted_comments = sorted(
+                submission.comments, key=lambda c: c.score, reverse=True
+            )[
+                :20
+            ]  # Top 20 only
+
+            post_comment_details = []
+            for top_comment in sorted_comments:
+                comment_details = {
+                    "body": top_comment.body,
+                    "score": top_comment.score,
+                }
+                post_comment_details.append(comment_details)
+
+            post_details = {
+                "author": str(submission.author),
+                "post_title": submission.title,
+                "post_body": submission.selftext,
+                "top_comments": post_comment_details,
+            }
+
+            print(f"Post details for {url} retrieved")
+
+            return post_details
+
+        except Exception as e:
+            print(f"Exception occurred!: {e}")
+            return None
+
+
+if __name__ == "__main__":
+
+    async def main():
+        reddit_client = RedditClient()
+        url_list = [
+            "https://www.reddit.com/r/GamingLaptops/comments/1liaiy1/i_need_a_good_budget_gaming_laptop/",
+            "https://www.reddit.com/r/GamingLaptops/comments/1m29eig/what_are_the_best_gaming_laptops_that_are/",
+            "https://www.reddit.com/r/GamingLaptops/comments/1l69gsg/best_budget_gaming_laptop/",
+            "https://www.reddit.com/r/GamingLaptops/comments/1konfzf/best_gaming_laptop_under_1100_strict_budget/",
+        ]
+        post_details = await reddit_client.get_posts_content(reddit_url_list=url_list)
+        print(post_details)
+
+    asyncio.run(main())

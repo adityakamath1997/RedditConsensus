@@ -1,5 +1,6 @@
 import asyncio
-from backend.app.services.agentlist.query_rewriter import QueryRewriterAgent
+from backend.app.services.agentlist.query_rewriter_agent import QueryRewriterAgent
+from backend.app.services.agentlist.consensus_agent import ConsensusAgent
 from backend.app.services.tavily_client import TavilySearch
 from dotenv import load_dotenv
 
@@ -9,6 +10,7 @@ class SearchService:
     def __init__(self):
         self.query_rewriter = QueryRewriterAgent()
         self.tavily_client = TavilySearch()
+        self.consensus_agent = ConsensusAgent()
 
     async def search(self, user_query: str, max_results: int = 5):
         print(f"Rewriting query: {user_query}")
