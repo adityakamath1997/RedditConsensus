@@ -1,6 +1,6 @@
 from agents import Agent, Runner, function_tool, TResponseInputItem, ModelSettings
 from datetime import datetime
-from backend.app.schemas.consensus_agent import ConsensusOutput
+from backend.app.schemas.consensus_schema import ConsensusOutput
 import asyncio
 
 class ConsensusAgent:

@@ -34,6 +34,7 @@ class RedditClient:
         formatted_posts = []
 
         for i, post in enumerate(posts_data, 1):
+            
             # Create a clean text block for each post
             formatted_post = f"""POST {i}:
 Title: {post['post_title']}
@@ -75,6 +76,7 @@ Top Comments:
                 "author": str(submission.author),
                 "post_title": submission.title,
                 "post_body": submission.selftext,
+                "parent_comment_count": len(sorted_comments),
                 "top_comments": post_comment_details,
             }
 
