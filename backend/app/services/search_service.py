@@ -47,7 +47,6 @@ class SearchService:
             "original_query": user_query,
             "start_date": rewrite_result.start_date,
             "end_date": rewrite_result.end_date,
-            "reddit_urls_found": len(reddit_urls),
             "posts_analyzed": len(post_details),
             "consensus": consensus
         }

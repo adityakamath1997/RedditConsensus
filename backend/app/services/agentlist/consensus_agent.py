@@ -1,5 +1,4 @@
-from agents import Agent, Runner, function_tool, TResponseInputItem, ModelSettings
-from datetime import datetime
+from agents import Agent, Runner
 from backend.app.schemas.consensus_schema import ConsensusOutput
 import asyncio
 
@@ -28,6 +27,11 @@ Take into consideration the following factors while arriving at a consensus:
 1. How relevant is the post body to the users question
 2. The helpful top comments and the number of upvotes they have.
 3. Filter out any comments that seem like satire/sarcasm/comedy or are generally unhelpful.
+
+#Important: For comments, each post will be PREPENDED by its upvote count
+
+In addition to what appears to be the single most popular answer, also list out and describe other commonly appearing answering.
+If no single answer is the most popular, answer with the most commonly appearing answers.
 
 Answer the users original question and make sure to mention that the answer is a consensus of what reddit users think.
 

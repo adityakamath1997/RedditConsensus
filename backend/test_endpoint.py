@@ -1,11 +1,11 @@
 import requests
-
+from pprint import pprint
 response = requests.post(
     "http://localhost:8000/api/v1/search",
     json={
-        "query": "best budget gaming laptops",
-        "max_results": 5
+        "query": "Best whodunnit tv shows of the last decade",
+        "max_results": 10
     }
 )
 
-print(response.json())
+pprint(response.json())

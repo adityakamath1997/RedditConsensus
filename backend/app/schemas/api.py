@@ -17,7 +17,6 @@ class SearchResponse(BaseModel):
     original_query: str = Field(description="The user's original search query")
     start_date: Optional[str] = Field(None, description="Start date filter (YYYY-MM-DD format)")
     end_date: Optional[str] = Field(None, description="End date filter (YYYY-MM-DD format)")
-    reddit_urls_found: int = Field(description="Number of Reddit URLs discovered")
     posts_analyzed: int = Field(description="Number of Reddit posts successfully analyzed")
     consensus: ConsensusData = Field(description="The consensus analysis from Reddit posts")
 
