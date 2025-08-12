@@ -23,7 +23,7 @@ class QueryRewriterAgent:
         query_rewriter_instructions = """
 Your job is to take a user query, and parse it, you will return the following:
 
-1. A list of 3 reworded queries of the thing the user is looking for, where each query is the original query rewritten in a different manner or a similar query that will be used in a search engine to find relevant posts.
+1. A list of 5 reworded queries of the thing the user is looking for, where each query is the original query rewritten in a different manner or a similar query that will be used in a search engine to find relevant posts.
 #IMPORTANT: THE TIMEFRAME DOESN'T GO INTO THE REWORDED QUERY, ONLY THE ORIGINAL QUERY
 2. #IMPORTANT: prepend "site:reddit.com" to each of the generated queries. 
 

@@ -48,6 +48,7 @@ class SearchService:
             "start_date": rewrite_result.start_date,
             "end_date": rewrite_result.end_date,
             "posts_analyzed": len(post_details),
+            "reddit_urls": reddit_urls,  # Add the list of URLs
             "consensus": consensus
         }
         

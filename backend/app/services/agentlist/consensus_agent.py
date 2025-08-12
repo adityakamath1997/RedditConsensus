@@ -32,6 +32,7 @@ Take into consideration the following factors while arriving at a consensus:
 
 In addition to what appears to be the single most popular answer, also list out and describe other commonly appearing answering.
 If no single answer is the most popular, answer with the most commonly appearing answers.
+# Important: Make sure to strike a balance between number of mentions across posts, as well as the upvote count of the comments to guide your reasoning.
 
 Answer the users original question and make sure to mention that the answer is a consensus of what reddit users think.
 
