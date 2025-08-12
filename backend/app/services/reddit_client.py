@@ -3,9 +3,6 @@ from dotenv import load_dotenv
 import os
 import asyncio
 
-load_dotenv()
-
-
 class RedditClient:
     def __init__(self):
         self.client = praw.Reddit(
@@ -35,7 +32,6 @@ class RedditClient:
 
         for i, post in enumerate(posts_data, 1):
             
-            # Create a clean text block for each post
             formatted_post = f"""POST {i}:
 Title: {post['post_title']}
 Author: {post['author']}
@@ -62,7 +58,7 @@ Top Comments:
                 submission.comments, key=lambda c: c.score, reverse=True
             )[
                 :20
-            ]  # Top 20 only
+            ]  # Top 20 for now
 
             post_comment_details = []
             for top_comment in sorted_comments:

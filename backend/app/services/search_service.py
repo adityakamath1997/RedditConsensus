@@ -7,8 +7,6 @@ from dotenv import load_dotenv
 from pprint import pprint
 from colorama import Fore
 
-load_dotenv()
-
 class SearchService:
     def __init__(self):
         self.query_rewriter = QueryRewriterAgent()
@@ -42,7 +40,7 @@ class SearchService:
             return {"error": "Could not fetch post content"}
 
         print(f"Generating consensus from {len(post_details)} posts...")
-        consensus_agent = ConsensusAgent(original_query=user_query)  # Pass user_query
+        consensus_agent = ConsensusAgent(original_query=user_query)  
         consensus = await consensus_agent.get_consensus(post_details)
 
         return {
@@ -50,6 +48,7 @@ class SearchService:
             "start_date": rewrite_result.start_date,
             "end_date": rewrite_result.end_date,
             "reddit_urls_found": len(reddit_urls),
+            "posts_analyzed": len(post_details),
             "consensus": consensus
         }
         

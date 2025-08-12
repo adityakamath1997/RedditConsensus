@@ -3,7 +3,6 @@ import os
 import re
 from tavily import TavilyClient
 
-
 class TavilySearch:
     def __init__(self):
         self.client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
@@ -44,7 +43,7 @@ class TavilySearch:
                 end_date=end_date,
             )
             
-            # Filter for Reddit URLs only
+            
             if result and 'results' in result:
                 reddit_results = [
                     item for item in result['results'] 
