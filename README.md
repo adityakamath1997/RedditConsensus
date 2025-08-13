@@ -9,6 +9,7 @@
 - Filters by date ranges (like "last 3 months", "this year")
 - Shows all source posts so you can verify the consensus
 - Explains why certain answers were chosen with upvote counts and comment quality
+- Instant charts: Answer Frequency and Total Upvotes histograms rendered in the UI (server-side PNGs)
 
 ## Tech Stack
 
@@ -17,6 +18,7 @@
 - OpenAI Agents SDK
 - Tavily Search API
 - PRAW (Reddit API)
+- Matplotlib for charts
 - Python 3.12+
 
 **Frontend:**
@@ -78,6 +80,15 @@ The application will be available at:
 - Backend API: http://localhost:8000
 - API Documentation: http://localhost:8000/docs
 
+## What you get after a search
+
+Along with the consensus and raw metrics, the API now returns two base64-encoded PNGs that the frontend displays as charts:
+
+- `answer_frequency_png`: Histogram of how often each answer shows up
+- `like_count_png`: Histogram of total upvotes per answer
+
+These are generated server-side using Matplotlib’s Agg backend, so no GUI is required.
+
 ## Project Structure
 
 ```
@@ -85,11 +96,16 @@ The application will be available at:
 │   ├── app/
 │   │   ├── api/          # FastAPI routes
 │   │   ├── services/     # Business logic
-│   │   │   ├── agentlist/    # AI agents
-│   │   │   ├── tavily_client.py
-│   │   │   └── reddit_client.py
+│   │   │   ├── agentlist/        # AI agents (rewriter, consensus, metrics)
+│   │   │   ├── plot_service.py   # Server-side Matplotlib chart
+│   │   │   ├── reddit_client.py  # Reddit fetching/formatting
+│   │   │   ├── search_service.py # Orchestrates the full flow
+│   │   │   └── tavily_client.py  # Web search client
 │   │   └── schemas/      # Pydantic models
+│   ├── main.py           # FastAPI app entry
 │   └── tests/            # Backend tests
+│       ├── test_search_service.py
+│       └── test_endpoint.py
 └── frontend/
     ├── public/
     └── src/
@@ -98,11 +114,41 @@ The application will be available at:
         └── services/     # API services
 ```
 
+## How it works (flow)
+
+```mermaid
+flowchart TD
+    U[User enters query] --> RQ[Query Rewriter Agent]
+    RQ --> TV[Tavily Search]\n(find relevant Reddit URLs)
+    TV --> RC[Reddit Client]\n(fetch posts + top comments)
+    RC --> CA[Consensus Agent]\n(consensus answer + reasons/caveats)
+    RC --> MA[Metrics Agent]\n(answer_frequency + like_count)
+    MA --> PS[Plot Service]\n(Matplotlib charts as base64)
+    CA --> API[FastAPI /search response]
+    PS --> API
+    RC --> API
+    API --> FE[React Frontend]\n(render consensus + charts + sources)
+```
+
+## Why this is better than “just ask ChatGPT for answers from Reddit posts”
+
+- Real sources you can click: you can look at every Reddit URL used by the LLM to arrive at its answer.
+- Breadth and depth: The application searches over several posts and aggregates over a large number of top comments in all those posts.
+- Quantified output: frequency and total upvotes per answer, charted.
+- Time scoped: you can limit your search to discussions pertaining to any timeframe.
+
+
 ## API Endpoints
 
 - `POST /api/v1/search`
   - Accepts: Query string and max results per query
-  - Returns: Consensus analysis with source URLs
+  - Returns: Consensus analysis with source URLs, metrics, and chart images
+  - Response fields (high level):
+    - `original_query`, `start_date`, `end_date`, `posts_analyzed`, `reddit_urls`
+    - `consensus`: `{ consensus: str, additional_info: { reasons: str[], caveats: str[] } }`
+    - `metrics`: `{ answer_frequency: Record<string, number>, like_count: Record<string, number>, reasoning?: string }`
+    - `answer_frequency_png`: base64 PNG string
+    - `like_count_png`: base64 PNG string
 
 ## Development
 
@@ -110,6 +156,15 @@ The application will be available at:
 - Backend handles multiple Reddit searches in parallel
 - Frontend built with modern React patterns
 - API responses include source verification
+- Chart images are generated server-side and sent as base64 to the frontend
+
+## Tests
+
+Run the backend tests:
+
+```bash
+python -m pytest -q backend/tests
+```
 
 ## License
 
