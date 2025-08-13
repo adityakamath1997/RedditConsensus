@@ -146,9 +146,11 @@ React frontend (render consensus, charts, and source links)
 - Agents: consensus and metrics run in parallel.
 
 ## Why this is better than “just ask ChatGPT for answers from Reddit posts”
-
+- Posts pulled from the latest reddit submissions that very likely aren't in the LLM's pretraining data.
+- All information is received through the Reddit API, no venturing into legal and ethical gray areas with web scraping.
 - Real sources you can click: you can look at every Reddit URL used by the LLM to arrive at its answer.
 - Breadth and depth: The application searches over several posts and aggregates over a large number of top comments in all those posts.
+- The analysis doesn't just factor in the frequency of answers, but also their scores judging by the number of upvotes.
 - Quantified output: frequency and total upvotes per answer, charted.
 - Time scoped: you can limit your search to discussions pertaining to any timeframe.
 
