@@ -116,19 +116,34 @@ These are generated server-side using Matplotlib’s Agg backend, so no GUI is r
 
 ## How it works (flow)
 
-```mermaid
-flowchart TD
-    U[User enters query] --> RQ[Query Rewriter Agent]
-    RQ --> TV[Tavily Search]\n(find relevant Reddit URLs)
-    TV --> RC[Reddit Client]\n(fetch posts + top comments)
-    RC --> CA[Consensus Agent]\n(consensus answer + reasons/caveats)
-    RC --> MA[Metrics Agent]\n(answer_frequency + like_count)
-    MA --> PS[Plot Service]\n(Matplotlib charts as base64)
-    CA --> API[FastAPI /search response]
-    PS --> API
-    RC --> API
-    API --> FE[React Frontend]\n(render consensus + charts + sources)
 ```
+User enters query
+  ↓
+Query Rewriter Agent
+  ↓
+Tavily Search (find relevant Reddit URLs; parallel over rewritten queries)
+  ↓
+Reddit Client (concurrent fetch of posts + top comments across URLs)
+  ↓
+┌─────────────────────────────── Parallel ───────────────────────────────┐
+│                                                                       │
+│  Consensus Agent                          Metrics Agent               │
+│    → consensus answer                       → answer_frequency,        │
+│      + reasons/caveats                        like_count               │
+│                                             → Plot Service (Matplotlib)│
+│                                               → base64 PNG charts      │
+└───────────────────────────────────────────────────────────────────────┘
+  ↓
+FastAPI /search response (consensus + metrics + chart images + URLs)
+  ↓
+React frontend (render consensus, charts, and source links)
+```
+
+### Parallelism at a glance
+
+- Tavily: searches multiple rewritten queries in one shot.
+- Reddit client: fetches all posts concurrently.
+- Agents: consensus and metrics run in parallel.
 
 ## Why this is better than “just ask ChatGPT for answers from Reddit posts”
 
@@ -145,7 +160,7 @@ flowchart TD
   - Returns: Consensus analysis with source URLs, metrics, and chart images
   - Response fields (high level):
     - `original_query`, `start_date`, `end_date`, `posts_analyzed`, `reddit_urls`
-    - `consensus`: `{ consensus: str, additional_info: { reasons: str[], caveats: str[] } }`
+    - `consensus`: `{ consensus: str, additional_info: { reasons: str[], warnings: str[] } }`
     - `metrics`: `{ answer_frequency: Record<string, number>, like_count: Record<string, number>, reasoning?: string }`
     - `answer_frequency_png`: base64 PNG string
     - `like_count_png`: base64 PNG string
