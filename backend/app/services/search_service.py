@@ -42,8 +42,8 @@ class SearchService:
             return {"error": "Could not fetch post content"}
 
         print(f"Generating consensus from {len(post_details)} posts...")
-        consensus_agent = ConsensusAgent(original_query=user_query)
-        consensus = await consensus_agent.get_consensus(post_details)
+        consensus_agent = ConsensusAgent(original_query=user_query, post_details=post_details)
+        consensus = await consensus_agent.get_consensus()
 
         return {
             "original_query": user_query,
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     async def main():
         orchestrator = SearchService()
         result = await orchestrator.search(
-            user_query="Friendliest dog breeds", max_results=10
+            user_query="Friendliest dog breeds", max_results=2
         )
 
         print(Fore.GREEN + f"{result}" + Fore.RESET)

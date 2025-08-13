@@ -1,27 +1,34 @@
-from agents import Agent, Runner
+from agents import Agent, Runner, function_tool
 from backend.app.schemas.consensus_schema import ConsensusOutput
-from backend.app.services.agentlist.metrics_agent import MetricsAgent
+from backend.app.schemas.answer_frequency_schema import FrequencyOutput
 import asyncio
 
 
 class ConsensusAgent:
-    def __init__(self, original_query):
-        self.metrics_agent = MetricsAgent(original_query)
+    def __init__(self, original_query, post_details):
         self.original_query = original_query
-        
+        self.post_details = post_details
         self.agent = Agent(
             name="Consensus Generator",
             instructions=self._get_instructions(),
             model="o4-mini",
             output_type=ConsensusOutput,
             tools=[
-                self.metrics_agent.agent.as_tool(
-                    tool_name="analyze_metrics",
-                    tool_description="Analyze the frequency and upvote metrics of answers in the reddit posts"
-                )
-            ]
+                self.analyze_metrics
+            ],
+            output_schema_strict=False
+        )
+        self.metrics_agent = Agent(
+            name="Metrics Generator",
+            instructions=self._get_metrics_instructions(),
+            model="o4-mini",
         )
 
+    @function_tool
+    def analyze_metrics(self, analysis):
+        response = Runner.run_sync(self.metrics_agent, analysis)
+
+        return response.final_output
 
     def _get_instructions(self):
         consensus_finder_instructions = """
@@ -46,7 +53,7 @@ If no single answer is the most popular, answer with the most commonly appearing
 
 Answer the users original question and make sure to mention that the answer is a consensus of what reddit users think.
 
-#Important: Before providing your final answer, use the analyze_metrics tool to get statistical information about the frequency and upvotes of different answers in the posts.
+#Important: Before providing your final answer, use the analyze_metrics tool to get statistical information about the frequency and upvotes of different answers in the posts. You will pass your analysis of the posts to this tool.
 Pass along the tools output in your final output
 
 In addition to your final answer, include the following additional information:
@@ -56,9 +63,61 @@ In addition to your final answer, include the following additional information:
 
 """
         return consensus_finder_instructions
+    
+    def _get_metrics_instructions(self):
 
-    async def get_consensus(self, post_details):
-        query = f"Original Query: '{self.original_query}' Posts details: {post_details}"
+
+        metrics_generation_instructions = f"""
+You are a metrics generator agent. You will serve as a tool to another agent who will receive a user query,
+and a number of reddit posts with comments. That agent will answer the user query with a consensus of the comments on the posts provided to it.
+
+You will receive a copy of the post details, as well as the other agents analysis. Your job is to analyze the post details
+as well as the agent's output and find the 3-5 most popular answers. For each of these answers, you have two tasks:
+
+1. Find the total number of mentions of each of these answers across all the post comments that are trying to answer the user query.
+One-shot example:
+Input:
+
+Original user query: Most popular movie series of the last 50 years.
+
+Post 1: <details>  Comment 1: Star Wars, Comment 2: Lord of the Rings Comment 3: Star Wars. Post 2: <details> Comment 1: Lord of the Rings. Comment 2: Star Wars. Comment 3. Harry Potter
+
+Agent analysis: Star wars seems to be the most popular movie, followed by lord of the rings.
+
+Output:
+"star wars": 3, "lord of the rings": 2, "harry potter": 3
+2. Find the sum of the number of upvotes across all comments that mention the most popular answers.
+
+One-shot example:
+
+Input:
+Original user query: Most popular dog breeds
+Post 1: <details> (20 upvotes) Comment 1: Golden retrievers and german shepherds rock!  (15 upvotes) Comment 2: I love golden retrievers
+Post 2: <details> (5 upvotes) Comment 1: I like golden retrievers and pomeranians 
+
+Output:
+"german shepherd": 40, "german shepherd": 20, "pomeranian": 5
+
+# Important: If multiple popular answers are contained in a single comment, the score/mentions in either case will count towards every popular answer contained in the comment.
+
+You will output two dictionaries:
+1. A dictionary containing key-value pairs of the most popular answers and their total mentions across all comments across all posts
+2. A dictionary containing key-value pairs of the most popular answers and their total upvote count across all comments across all posts.
+
+Think step-by-step in your analysis.
+
+Here is the original query:
+{self.original_query}
+
+Here are the post details delimited by triple backticks:
+
+```{self.post_details}```
+"""
+        return metrics_generation_instructions
+
+
+    async def get_consensus(self):
+        query = f"Original Query: '{self.original_query}' Posts details: {self.post_details}"
         response = await Runner.run(self.agent, query)
         return response.final_output
 
@@ -72,8 +131,8 @@ if __name__ == "__main__":
     ]
 
     async def main():
-        consensus_agent = ConsensusAgent(original_query="Best budget gaming laptops")
-        answer = await consensus_agent.get_consensus(POST_DETAILS)
+        consensus_agent = ConsensusAgent(original_query="Best budget gaming laptops", post_details=POST_DETAILS)
+        answer = await consensus_agent.get_consensus()
         print(answer)
 
     asyncio.run(main())
