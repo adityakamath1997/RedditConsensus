@@ -1,17 +1,27 @@
 from agents import Agent, Runner
 from backend.app.schemas.consensus_schema import ConsensusOutput
+from backend.app.services.agentlist.metrics_agent import MetricsAgent
 import asyncio
 
 
 class ConsensusAgent:
     def __init__(self, original_query):
+        self.metrics_agent = MetricsAgent(original_query)
+        self.original_query = original_query
+        
         self.agent = Agent(
             name="Consensus Generator",
             instructions=self._get_instructions(),
             model="o4-mini",
             output_type=ConsensusOutput,
+            tools=[
+                self.metrics_agent.agent.as_tool(
+                    tool_name="analyze_metrics",
+                    tool_description="Analyze the frequency and upvote metrics of answers in the reddit posts"
+                )
+            ]
         )
-        self.original_query = original_query
+
 
     def _get_instructions(self):
         consensus_finder_instructions = """
@@ -36,9 +46,14 @@ If no single answer is the most popular, answer with the most commonly appearing
 
 Answer the users original question and make sure to mention that the answer is a consensus of what reddit users think.
 
-You will output your answer, as well some additional information:
-1. 2-3 Reasons to justify your answer
+#Important: Before providing your final answer, use the analyze_metrics tool to get statistical information about the frequency and upvotes of different answers in the posts.
+Pass along the tools output in your final output
+
+In addition to your final answer, include the following additional information:
+1. 2-3 Reasons to justify your answer, including metrics from the analyze_metrics tool where relevant
 2. 0-3 Caveats/Warnings to the user who is looking at this information. Make sure this is only about the source of the information. Examples might be few relevant posts/comments, or if some of the information seems sponsored etc.
+
+
 """
         return consensus_finder_instructions
 

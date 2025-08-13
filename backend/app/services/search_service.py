@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from pprint import pprint
 from colorama import Fore
 
+load_dotenv()
 
 class SearchService:
     def __init__(self):

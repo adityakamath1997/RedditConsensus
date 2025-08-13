@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
-
+from backend.app.schemas.answer_frequency_schema import FrequencyOutput
 
 class SearchRequest(BaseModel):
     query: str = Field(description="User's search query")
@@ -21,7 +21,7 @@ class ConsensusData(BaseModel):
     additional_info: AdditionalInfo = Field(
         description="Supporting reasons and caveats"
     )
-
+    metrics: FrequencyOutput = Field(description="Metrics received from the analyze_metrics tool ")
 
 class SearchResponse(BaseModel):
     original_query: str = Field(description="The user's original search query")
@@ -39,4 +39,7 @@ class SearchResponse(BaseModel):
     )
     consensus: ConsensusData = Field(
         description="The consensus analysis from Reddit posts"
+    )
+    metrics: FrequencyOutput = Field(
+        description="The frequency and score metrics"
     )

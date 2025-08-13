@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-
+from backend.app.schemas.answer_frequency_schema import FrequencyOutput
 
 class ConsensusAdditionalInfo(BaseModel):
     reasons: list[str] = Field(
@@ -17,3 +17,4 @@ class ConsensusOutput(BaseModel):
     additional_info: ConsensusAdditionalInfo = Field(
         description="Additional info including reasoning and caveats"
     )
+    metrics: FrequencyOutput = Field("The metrics received from the analyse_metrics tool")
