@@ -41,10 +41,3 @@ Use the _get_current_time tool to find current time
         return response.final_output
 
 
-if __name__ == "__main__":
-
-    async def main():
-        rewriter = QueryRewriterAgent()
-        print(await rewriter.rewrite_query("test"))
-
-    asyncio.run(main())

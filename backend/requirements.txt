@@ -7,3 +7,4 @@ praw
 tavily-python
 agents
 colorama
+matplotlib

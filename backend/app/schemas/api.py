@@ -21,7 +21,6 @@ class ConsensusData(BaseModel):
     additional_info: AdditionalInfo = Field(
         description="Supporting reasons and caveats"
     )
-    metrics: FrequencyOutput = Field(description="Metrics received from the analyze_metrics tool ")
 
 class SearchResponse(BaseModel):
     original_query: str = Field(description="The user's original search query")
@@ -42,4 +41,12 @@ class SearchResponse(BaseModel):
     )
     metrics: FrequencyOutput = Field(
         description="The frequency and score metrics"
+    )
+    answer_frequency_png: Optional[str] = Field(
+        default=None,
+        description="Base64 PNG of the Answer Frequency histogram",
+    )
+    like_count_png: Optional[str] = Field(
+        default=None,
+        description="Base64 PNG of the Total Upvotes histogram",
     )

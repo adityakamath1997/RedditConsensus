@@ -64,23 +64,3 @@ class TavilySearch:
     def _is_reddit_url(self, url):
         return bool(self.reddit_pattern.match(url))
 
-
-if __name__ == "__main__":
-    import asyncio
-    from dotenv import load_dotenv
-    from pprint import pprint
-
-    async def quick_test():
-        load_dotenv()
-
-        client = TavilySearch()
-        queries = ["site:reddit.com Best budget laptops", "javascript"]
-
-        print("Testing Tavily client...")
-        results = await client.tavily_search(queries, 10, "2025-02-02", "2025-08-03")
-
-        print(f"Got {len(results)} unique results:")
-        for i, item in enumerate(results):
-            print(f"  Result {i+1}: {item.get('url', 'No URL')}")
-
-    asyncio.run(quick_test())

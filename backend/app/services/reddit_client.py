@@ -12,6 +12,8 @@ class RedditClient:
             user_agent=os.getenv("REDDIT_USER_AGENT"),
         )
 
+        self._last_valid_posts = []
+
     async def get_posts_content(self, reddit_url_list: list[str]):
         loop = asyncio.get_event_loop()
 
@@ -26,6 +28,7 @@ class RedditClient:
             for post in all_post_content
             if post is not None and not isinstance(post, Exception)
         ]
+        self._last_valid_posts = valid_posts
         return self._format_post_content(valid_posts)
 
     def _format_post_content(self, posts_data):
@@ -49,6 +52,13 @@ Top Comments:
             formatted_posts.append(formatted_post)
 
         return formatted_posts
+
+    def get_comments_and_upvotes(self):
+        comments_and_upvotes= []
+        for post in self._last_valid_posts:
+            for comment in post.get("top_comments", []):
+                comments_and_upvotes.append((comment.get("body", ""), int(comment.get("score", 0))))
+        return comments_and_upvotes
 
     def _extract_single_post_details(self, url):
         try:
@@ -84,19 +94,3 @@ Top Comments:
         except Exception as e:
             print(f"Exception occurred!: {e}")
             return None
-
-
-if __name__ == "__main__":
-
-    async def main():
-        reddit_client = RedditClient()
-        url_list = [
-            "https://www.reddit.com/r/GamingLaptops/comments/1liaiy1/i_need_a_good_budget_gaming_laptop/",
-            "https://www.reddit.com/r/GamingLaptops/comments/1m29eig/what_are_the_best_gaming_laptops_that_are/",
-            "https://www.reddit.com/r/GamingLaptops/comments/1l69gsg/best_budget_gaming_laptop/",
-            "https://www.reddit.com/r/GamingLaptops/comments/1konfzf/best_gaming_laptop_under_1100_strict_budget/",
-        ]
-        post_details = await reddit_client.get_posts_content(reddit_url_list=url_list)
-        print(post_details)
-
-    asyncio.run(main())

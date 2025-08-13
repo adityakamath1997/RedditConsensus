@@ -1,24 +1,26 @@
-from agents import Agent, Runner
+from agents import Agent, Runner, AgentOutputSchema, ModelSettings
 from backend.app.schemas.answer_frequency_schema import FrequencyOutput
 import asyncio
 
 class MetricsAgent:
-    def __init__(self, original_query):
+    def __init__(self, original_query, post_details):
         self.original_query = original_query
+        self.post_details = post_details
         self.agent = Agent(
             name="Metrics Generator Agent",
             instructions=self._get_instructions(),
-            model="o4-mini",
-            handoff_description="Used to calculate metrics for popular answers from reddit post comments",
+            model="gpt-5-mini-2025-08-07",
+            output_type=AgentOutputSchema(FrequencyOutput, strict_json_schema=False)
         )
 
     def _get_instructions(self):
         metrics_generation_instructions = f"""
-You are a metrics generator agent. You will serve as a tool to another agent who will receive a user query,
-and a number of reddit posts with comments. That agent will answer the user query with a consensus of the comments on the posts provided to it.
+You are a metrics generator agent. 
+You will receive a user query, and a list of comments.
 
-You will receive a copy of the post details, as well as the other agents analysis. Your job is to analyze the post details
-as well as the agent's output and find the 3-5 most popular answers. For each of these answers, you have two tasks:
+#Important: Each comment in the list will be a tuple of the comment body and the upvote count for that comment.
+
+Your job is to analyze the comments that answer the users query and find the 5-10 most popular answers. For each of these answers, you have two tasks:
 
 1. Find the total number of mentions of each of these answers across all the post comments that are trying to answer the user query.
 One-shot example:
@@ -50,10 +52,14 @@ You will output two dictionaries:
 1. A dictionary containing key-value pairs of the most popular answers and their total mentions across all comments across all posts
 2. A dictionary containing key-value pairs of the most popular answers and their total upvote count across all comments across all posts.
 
-Think step-by-step in your analysis.
+Think step-by-step in your analysis. You MUST calculate as accurately as possible.
 
-Here is the original query:
-{self.original_query}
 """
         return metrics_generation_instructions
+    
+    async def get_metrics(self):
+
+        query = f"Original Query: '{self.original_query}' Posts details: ```{self.post_details}```"
+        analysis = await Runner.run(self.agent, query)
+        return analysis.final_output
 
