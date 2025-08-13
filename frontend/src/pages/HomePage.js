@@ -35,7 +35,7 @@ const HomePage = () => {
       {loading && (
         <div className="loading">
           <p>🔍 Analyzing Reddit posts...</p>
-          <p>This may take up to 30 seconds</p>
+          <p>This make take more than a minute depending on the number of results. </p>
         </div>
       )}
 
