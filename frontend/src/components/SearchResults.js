@@ -3,7 +3,7 @@ import React from 'react';
 const SearchResults = ({ results }) => {
   if (!results) return null;
 
-  const { original_query, consensus, reddit_urls_found, posts_analyzed, start_date, end_date } = results;
+  const { original_query, consensus, reddit_urls_found, posts_analyzed, start_date, end_date, answer_frequency_png, like_count_png } = results;
 
   return (
     <div className="results">
@@ -52,6 +52,34 @@ const SearchResults = ({ results }) => {
           <span>📅 {start_date} to {end_date}</span>
         )}
       </div>
+
+      {(answer_frequency_png || like_count_png) && (
+        <div className="histograms">
+          <h3>Metrics</h3>
+          <div className="charts">
+            {answer_frequency_png && (
+              <div className="chart">
+                <h4>Answer Frequency</h4>
+                <img
+                  src={`data:image/png;base64,${answer_frequency_png}`}
+                  alt="Answer Frequency Histogram"
+                  style={{ maxWidth: '100%', height: 'auto', border: '1px solid #eee', borderRadius: 6 }}
+                />
+              </div>
+            )}
+            {like_count_png && (
+              <div className="chart">
+                <h4>Total Upvotes</h4>
+                <img
+                  src={`data:image/png;base64,${like_count_png}`}
+                  alt="Total Upvotes Histogram"
+                  style={{ maxWidth: '100%', height: 'auto', border: '1px solid #eee', borderRadius: 6 }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       {results.reddit_urls && results.reddit_urls.length > 0 && (
   <div className="reddit-sources">
     <h4>📰 Source Posts Analyzed:</h4>
