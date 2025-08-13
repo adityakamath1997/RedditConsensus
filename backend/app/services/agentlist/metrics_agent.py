@@ -9,7 +9,8 @@ class MetricsAgent:
         self.agent = Agent(
             name="Metrics Generator Agent",
             instructions=self._get_instructions(),
-            model="gpt-5-mini-2025-08-07",
+            model="gpt-4.1-mini",
+            model_settings=ModelSettings(temperature=0.7),
             output_type=AgentOutputSchema(FrequencyOutput, strict_json_schema=False)
         )
 
