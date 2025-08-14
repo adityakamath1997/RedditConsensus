@@ -7,6 +7,9 @@ class SearchRequest(BaseModel):
     max_results: int = Field(
         5, description="Max number of search results per reworded query", ge=1, le=20
     )
+    comment_depth: int = Field(
+        10, description="Maximum number of top comments to get answers from", ge=1, le=25
+    ) # Set low by default because of large token usage in order to avoid OpenAI rate limits
 
 
 class AdditionalInfo(BaseModel):

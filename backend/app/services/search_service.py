@@ -13,12 +13,12 @@ from colorama import Fore
 load_dotenv()
 
 class SearchService:
-    def __init__(self):
+    def __init__(self, comment_depth):
         self.query_rewriter = QueryRewriterAgent()
         self.tavily_client = TavilySearch()
-        self.reddit_client = RedditClient()
+        self.reddit_client = RedditClient(comment_depth)
 
-    async def search(self, user_query: str, max_results: int = 5):
+    async def search(self, user_query: str, max_results: int = 5, comment_depth: int = 10):
         print(f"Rewriting query: {user_query}")
         rewrite_result = await self.query_rewriter.rewrite_query(user_query)
 
@@ -38,7 +38,6 @@ class SearchService:
 
         print(f"Found {len(reddit_urls)} Reddit URLs. Fetching post content...")
         post_details = await self.reddit_client.get_posts_content(reddit_urls)
-        comments_and_upvotes = self.reddit_client.get_comments_and_upvotes()
         print(Fore.MAGENTA + f"{post_details}" + Fore.RESET)
 
         if not post_details:
@@ -46,7 +45,7 @@ class SearchService:
 
         print(f"Generating consensus and metrics from {len(post_details)} posts...")
         consensus_agent = ConsensusAgent(original_query=user_query, post_details=post_details)
-        metrics_agent = MetricsAgent(original_query=user_query, post_details=comments_and_upvotes)
+        metrics_agent = MetricsAgent(original_query=user_query, post_details=post_details)
 
 
         consensus, metrics = await asyncio.gather(

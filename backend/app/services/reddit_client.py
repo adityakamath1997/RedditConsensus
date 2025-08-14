@@ -5,13 +5,14 @@ import asyncio
 
 
 class RedditClient:
-    def __init__(self):
+    def __init__(self, comment_depth: int):
         self.client = praw.Reddit(
             client_id=os.getenv("REDDIT_CLIENT_ID"),
             client_secret=os.getenv("REDDIT_CLIENT_SECRET"),
             user_agent=os.getenv("REDDIT_USER_AGENT"),
         )
 
+        self.comment_depth = comment_depth
         self._last_valid_posts = []
 
     async def get_posts_content(self, reddit_url_list: list[str]):
@@ -68,8 +69,8 @@ Top Comments:
             sorted_comments = sorted(
                 submission.comments, key=lambda c: c.score, reverse=True
             )[
-                :20
-            ]  # Top 20 for now
+                :self.comment_depth
+            ]
 
             post_comment_details = []
             for top_comment in sorted_comments:

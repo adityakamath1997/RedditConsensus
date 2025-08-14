@@ -9,9 +9,10 @@ router = APIRouter(prefix="/api/v1", tags=["search"])
 @router.post("/search", response_model=SearchResponse)
 async def search_reddit_consensus(request: SearchRequest):
     try:
-        search_service = SearchService()
+        search_service = SearchService(comment_depth=request.comment_depth)
         result = await search_service.search(
-            user_query=request.query, max_results=request.max_results
+            user_query=request.query, max_results=request.max_results,
+
         )
 
         return result

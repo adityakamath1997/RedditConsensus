@@ -16,45 +16,36 @@ class MetricsAgent:
 
     def _get_instructions(self):
         metrics_generation_instructions = f"""
-You are a metrics generator agent. 
-You will receive a user query, and a list of comments.
+You are a metrics generator agent. Your job is to answer a user query by analyzing comments from Reddit posts that are likely to contain answers to the user's query.
+You will receive a user query, followed by a list of Reddit posts (typically 10-20). Each post includes:
 
-#Important: Each comment in the list will be a tuple of the comment body and the upvote count for that comment.
+The post title
+The post body
+A list of the top comments (up to 25 parent comments), where each comment is preceded by its upvote score (e.g., "[Upvotes: 150] Comment text here").
 
-Your job is to analyze the comments that answer the users query and find the 5-10 most popular answers. For each of these answers, you have two tasks:
+Your task is to identify the 5-10 most popular distinct answers to the user query across all comments in all posts. Focus only on comments that appear to be attempting to answer the query, based on relevance to the user query and the post title/body.
+Approach:
 
-1. Find the total number of mentions of each of these answers across all the post comments that are trying to answer the user query.
-One-shot example:
-Input:
+Identify and group answers: Read each comment independently. Extract potential answers from comments that address the query. Group similar or equivalent answers into distinct categories (e.g., if "Python" and "Use Python programming language" mean the same thing, treat them as one answer). Normalize phrasing to avoid duplicates while preserving meaning. Ignore off-topic comments, jokes, or non-answers.
+Determine popularity: Rank answers by the total number of mentions (descending) to select the top 5-10. If there are ties, use total upvote score as a tiebreaker.
+Tally metrics for each top answer:
 
-Original user query: Most popular movie series of the last 50 years.
+Mentions count: For each distinct answer, count the total number of comments (across all posts) that mention it at least once. Each such comment counts as 1 mention for that answer, regardless of how many times it's repeated within the comment.
 
-Post 1: <details>  Comment 1: Star Wars, Comment 2: Lord of the Rings Comment 3: Star Wars. Post 2: <details> Comment 1: Lord of the Rings. Comment 2: Star Wars. Comment 3. Harry Potter
+Important: If a single comment mentions multiple answers, count it as 1 mention toward each relevant answer.
 
-Agent analysis: Star wars seems to be the most popular movie, followed by lord of the rings.
 
-Output:
-"star wars": 3, "lord of the rings": 2, "harry potter": 3
-2. Find the sum of the number of upvotes across all comments that mention the most popular answers.
+Upvote score sum: For each distinct answer, sum the upvote scores of all comments that mention it at least once. Use only the upvote score provided for each comment.
 
-One-shot example:
+Important: If a single comment mentions multiple answers, add its full upvote score to each relevant answer.
 
-Input:
-Original user query: Most popular dog breeds
-Post 1: <details> (20 upvotes) Comment 1: Golden retrievers and german shepherds rock!  (15 upvotes) Comment 2: I love golden retrievers
-Post 2: <details> (5 upvotes) Comment 1: I like golden retrievers and pomeranians 
 
-Output:
-"german shepherd": 40, "german shepherd": 20, "pomeranian": 5
 
-# Important: If multiple popular answers are contained in a single comment, the score/mentions in either case will count towards every popular answer contained in the comment.
 
-You will output two dictionaries:
-1. A dictionary containing key-value pairs of the most popular answers and their total mentions across all comments across all posts
-2. A dictionary containing key-value pairs of the most popular answers and their total upvote count across all comments across all posts.
 
-Think step-by-step in your analysis. You MUST calculate as accurately as possible.
+Think step-by-step in your analysis. Calculate metrics as accurately as possible by processing each comment one by one. Double-check for grouping accuracy and ensure no double-counting or omissions.
 
+Output in the JSON schema specified.
 """
         return metrics_generation_instructions
     
