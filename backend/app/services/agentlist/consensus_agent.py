@@ -1,7 +1,5 @@
 from agents import Agent, Runner, ModelSettings, AgentOutputSchema
 from backend.app.schemas.consensus_schema import ConsensusOutput
-import asyncio
-from agents.extensions.models.litellm_model import LitellmModel
 
 class ConsensusAgent:
     def __init__(self, original_query, post_details, model):
@@ -11,6 +9,7 @@ class ConsensusAgent:
             name="Consensus Generator",
             instructions=self._get_instructions(),
             model=model,
+            model_settings=ModelSettings(temperature=0.3),
             output_type=AgentOutputSchema(ConsensusOutput)
         )
 

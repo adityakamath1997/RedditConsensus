@@ -2,6 +2,7 @@ import asyncio
 from backend.app.services.agentlist.query_rewriter_agent import QueryRewriterAgent
 from backend.app.services.agentlist.consensus_agent import ConsensusAgent
 from backend.app.services.agentlist.metrics_agent import MetricsAgent
+from backend.app.services.agentlist.relevance_checker_agent import RelevanceCheckerAgent
 from backend.app.services.reddit_client import RedditClient
 from backend.app.services.tavily_client import TavilySearch
 from agents import trace
@@ -24,8 +25,9 @@ class SearchService:
     async def search(self, user_query: str, max_results: int = 5):
         print(f"Rewriting query: {user_query}")
         rewrite_result = await self.query_rewriter.rewrite_query(user_query)
-
+        original_query = rewrite_result.queries[0]
         print(f"Queries: {rewrite_result.queries}")
+        
         print(f"Start date: {rewrite_result.start_date} to {rewrite_result.end_date}")
 
         print(f"Searching with Tavily...")
@@ -35,20 +37,29 @@ class SearchService:
             start_date=rewrite_result.start_date,
             end_date=rewrite_result.end_date,
         )
+        relevance_agent = RelevanceCheckerAgent(original_query=original_query)
+
+        print("Checking relevancy of reddit url's")
+        relevance_check = await relevance_agent.get_relevance(reddit_urls)
+
+        relevant_reddit_urls = [url for url, flag in zip(reddit_urls, relevance_check) if flag]
+
+        print(f"Original number of Reddit URLs:{len(reddit_urls)}")
+        print(f"Relevant Reddit URLs: {len(relevant_reddit_urls)}")
 
         if not reddit_urls:
             return f"Error: No Reddit posts found"
 
-        print(f"Found {len(reddit_urls)} Reddit URLs. Fetching post content...")
-        post_details = await self.reddit_client.get_posts_content(reddit_urls)
+
+        post_details = await self.reddit_client.get_posts_content(relevant_reddit_urls)
         print(Fore.MAGENTA + f"{post_details}" + Fore.RESET)
 
         if not post_details:
             return {"error": "Could not fetch post content"}
 
         print(f"Generating consensus and metrics from {len(post_details)} posts...")
-        consensus_agent = ConsensusAgent(original_query=user_query, post_details=post_details, model=self.model)
-        metrics_agent = MetricsAgent(original_query=user_query, post_details=post_details, model=self.model)
+        consensus_agent = ConsensusAgent(original_query=original_query, post_details=post_details, model=self.model)
+        metrics_agent = MetricsAgent(original_query=original_query, post_details=post_details, model=self.model)
 
 
         consensus, metrics = await asyncio.gather(
@@ -62,7 +73,7 @@ class SearchService:
             "start_date": rewrite_result.start_date,
             "end_date": rewrite_result.end_date,
             "posts_analyzed": len(post_details),
-            "reddit_urls": reddit_urls,  # Add the list of URLs
+            "reddit_urls": relevant_reddit_urls,  # Add the list of URLs
             "consensus": consensus,
             "metrics": metrics,
             "answer_frequency_png": histogram_images.get("answer_frequency_png"),
