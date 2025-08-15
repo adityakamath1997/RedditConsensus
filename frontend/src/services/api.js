@@ -39,20 +39,47 @@ export const streamConsensus = ({ query, maxResults = 10, commentDepth = 10, han
 
   const es = new EventSource(url);
 
+  // 2-minute timeout
+  const timeoutId = setTimeout(() => {
+    try { es.close(); } catch {}
+    onError && onError({ message: 'Request timed out after 2 minutes' });
+  }, 120000);
+
   if (onRewritten) es.addEventListener('rewritten', (e) => onRewritten(JSON.parse(e.data)));
   if (onSearchComplete) es.addEventListener('search_complete', (e) => onSearchComplete(JSON.parse(e.data)));
   if (onUrlsFiltered) es.addEventListener('urls_filtered', (e) => onUrlsFiltered(JSON.parse(e.data)));
   if (onConsensus) es.addEventListener('consensus_generated', (e) => onConsensus(JSON.parse(e.data)));
   if (onMetrics) es.addEventListener('metrics_generated', (e) => onMetrics(JSON.parse(e.data)));
-  if (onDone) es.addEventListener('done', (e) => onDone(JSON.parse(e.data)));
+  if (onDone) es.addEventListener('done', (e) => {
+    clearTimeout(timeoutId);
+    onDone(JSON.parse(e.data));
+  });
 
   es.addEventListener('error', (e) => {
-    try {
-      const payload = e.data ? JSON.parse(e.data) : { message: 'Stream error' };
-      onError && onError(payload);
-    } catch {
-      onError && onError({ message: 'Stream error' });
-    }
+    clearTimeout(timeoutId);
+    // Attempt to detect rate limit (429) by probing the endpoint
+    const controller = new AbortController();
+    const probe = async () => {
+      try {
+        const resp = await fetch(url, {
+          method: 'GET',
+          headers: { 'Accept': 'text/event-stream' },
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (resp.status === 429) {
+          onError && onError({ message: 'Rate limit exceeded. Please try again later.', code: 429 });
+        } else {
+          onError && onError({ message: 'Stream error' });
+        }
+      } catch (_) {
+        onError && onError({ message: 'Stream error' });
+      } finally {
+        try { controller.abort(); } catch {}
+      }
+    };
+    // Fire and forget; do not block UI
+    probe();
     // Do not auto-close; let the caller decide. Some browsers fire 'error' on CORS retries.
   });
 

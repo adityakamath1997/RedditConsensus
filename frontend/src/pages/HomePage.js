@@ -63,8 +63,10 @@ const HomePage = () => {
             try { es.close(); } catch {}
           },
           onError: (e) => {
-            // Fallback: attempt non-streaming request if stream fails
-            console.debug('SSE error', e);
+            const message = e && e.code === 429 ? 'Rate limit exceeded. Please try again later.' : (e?.message || 'Stream error');
+            setError(message);
+            setLoading(false);
+            try { es.close(); } catch {}
           },
         }
       });
