@@ -10,3 +10,4 @@ matplotlib
 openai-agents
 openai
 asyncio
+slowapi
