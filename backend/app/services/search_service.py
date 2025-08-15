@@ -11,8 +11,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class SearchService:
-    def __init__(self, comment_depth=10, model="gpt-4.1-mini"):
-        self.model = model
+    def __init__(self, comment_depth=10):
+        self.model = "gpt-4.1-mini"
         self.query_rewriter = QueryRewriterAgent()
         self.tavily_client = TavilySearch()
         self.reddit_client = RedditClient(comment_depth)
