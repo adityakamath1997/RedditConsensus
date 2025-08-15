@@ -27,7 +27,7 @@ const HomePage = () => {
     <div className="container">
       <header className="header">
         <h1>Reddit Consensus</h1>
-        <p>Get the collective wisdom of Reddit on any topic</p>
+        <p>Find the most popular answers to your questions from Reddit posts and comments!</p>
       </header>
 
       <SearchForm onSearch={handleSearch} loading={loading} />

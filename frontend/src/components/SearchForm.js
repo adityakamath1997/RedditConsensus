@@ -18,7 +18,7 @@ const SearchForm = ({ onSearch, loading }) => {
   return (
     <form className="search-form" onSubmit={handleSubmit}>
       <div className="form-group">
-        <label htmlFor="query">What do you want to know? 😊 Your question may include a timeframe!</label>
+        <label htmlFor="query">What do you want to know? 😊 You can include a timeframe in your question!</label>
         <input
           id="query"
           type="text"
@@ -43,7 +43,7 @@ const SearchForm = ({ onSearch, loading }) => {
       {showParams && (
         <div id="params-panel" className="params-panel">
           <div className="form-group">
-            <label htmlFor="maxResults">Max results per query (1-20)</label>
+            <label htmlFor="maxResults">Max results(1-20). This increases the breadth of search.</label>
             <input
               id="maxResults"
               type="number"
@@ -56,7 +56,7 @@ const SearchForm = ({ onSearch, loading }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="commentDepth">Max top comments per post</label>
+            <label htmlFor="commentDepth">Max top comments per post(5-25). This increases the depth of search.</label>
             <select
               id="commentDepth"
               value={commentDepth}
