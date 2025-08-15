@@ -8,7 +8,7 @@ class RelevanceCheckerAgent:
         self.agent = Agent(
             name="Relevancy checker agent",
             instructions=self._get_instructions(),
-            model_settings=ModelSettings(temperature=0.7),
+            #model_settings=ModelSettings(temperature=0.7),
             model="gpt-4.1",
             output_type=RelevanceOutput
             
