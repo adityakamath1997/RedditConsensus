@@ -10,8 +10,8 @@ load_dotenv()
 
 app = FastAPI(title="Reddit Consensus API", version="1.0.0")
 
-limiter = Limiter(key_func=get_remote_address)
-app.state.limiter = limiter
+limit_er = Limiter(key_func=get_remote_address)
+app.state.limiter = limit_er
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
