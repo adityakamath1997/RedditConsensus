@@ -314,6 +314,15 @@ body {
   font-size: 0.9rem;
 }
 
+.made-with {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.heart {
+  color: #ef4444;
+}
+
 .histograms {
   margin-top: 24px;
 }

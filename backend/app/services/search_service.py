@@ -73,7 +73,7 @@ class SearchService:
             "start_date": rewrite_result.start_date,
             "end_date": rewrite_result.end_date,
             "posts_analyzed": len(post_details),
-            "reddit_urls": relevant_reddit_urls,  # Add the list of URLs
+            "reddit_urls": relevant_reddit_urls,  # Relevant URLs only
             "consensus": consensus,
             "metrics": metrics,
             "answer_frequency_png": histogram_images.get("answer_frequency_png"),

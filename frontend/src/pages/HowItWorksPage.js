@@ -60,7 +60,7 @@ const HowItWorksPage = ({ onBackToHome }) => {
         <ul>
           <li><strong>Real Reddit access</strong>: ChatGPT usually doesn't have live Reddit API access, and is restricted to its knowledge cutoff date. This uses the official Reddit API, so you’re not getting guesses.</li>
           <li><strong>No web scraping</strong>: Everything comes through approved endpoints.</li>
-          <li><strong>You set the scope</strong>: You choose how many threads to scan and how deep to go into the top comments.</li>
+          <li><strong>You set the scope</strong>: You choose how many threads to scan and how deep to go into the top comments. The analysis takes a few seconds, but it's well worth the wait!</li>
           <li><strong>Increased relevance</strong>: Off-topic threads are filtered out before the analysis so the summary stays focused.</li>
           <li><strong>You can see the numbers</strong>: Metrics to look at how the most popular answers compare to each other.</li>
         </ul>
