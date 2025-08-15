@@ -1,18 +1,17 @@
-from agents import Agent, Runner, ModelSettings
+from agents import Agent, Runner, ModelSettings, AgentOutputSchema
 from backend.app.schemas.consensus_schema import ConsensusOutput
 import asyncio
-
+from agents.extensions.models.litellm_model import LitellmModel
 
 class ConsensusAgent:
-    def __init__(self, original_query, post_details):
+    def __init__(self, original_query, post_details, model):
         self.original_query = original_query
         self.post_details = post_details
         self.agent = Agent(
             name="Consensus Generator",
             instructions=self._get_instructions(),
-            model="gpt-4.1-mini",
-            model_settings=ModelSettings(temperature=0.7),
-            output_type=ConsensusOutput,
+            model=model,
+            output_type=AgentOutputSchema(ConsensusOutput)
         )
 
 

@@ -1,16 +1,16 @@
 from agents import Agent, Runner, AgentOutputSchema, ModelSettings
 from backend.app.schemas.answer_frequency_schema import FrequencyOutput
 import asyncio
+from agents.extensions.models.litellm_model import LitellmModel
 
 class MetricsAgent:
-    def __init__(self, original_query, post_details):
+    def __init__(self, original_query, post_details, model):
         self.original_query = original_query
         self.post_details = post_details
         self.agent = Agent(
             name="Metrics Generator Agent",
             instructions=self._get_instructions(),
-            model="gpt-4.1-mini",
-            model_settings=ModelSettings(temperature=0.7),
+            model=model,
             output_type=AgentOutputSchema(FrequencyOutput, strict_json_schema=False)
         )
 
@@ -46,6 +46,7 @@ Important: If a single comment mentions multiple answers, add its full upvote sc
 Think step-by-step in your analysis. Calculate metrics as accurately as possible by processing each comment one by one. Double-check for grouping accuracy and ensure no double-counting or omissions.
 
 Output in the JSON schema specified.
+
 """
         return metrics_generation_instructions
     

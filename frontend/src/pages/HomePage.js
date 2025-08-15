@@ -8,13 +8,13 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSearch = async (query, maxResults, commentDepth) => {
+  const handleSearch = async (query, maxResults, commentDepth, model) => {
     setLoading(true);
     setError(null);
     setResults(null);
 
     try {
-      const data = await searchConsensus(query, maxResults, commentDepth);
+      const data = await searchConsensus(query, maxResults, commentDepth, model);
       setResults(data);
     } catch (err) {
       setError(err.message);

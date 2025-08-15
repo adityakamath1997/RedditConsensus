@@ -46,6 +46,7 @@ class TavilySearch:
                 max_results=max_results,
                 start_date=start_date,
                 end_date=end_date,
+                include_domains=["reddit.com"]
             )
 
             if result and "results" in result:

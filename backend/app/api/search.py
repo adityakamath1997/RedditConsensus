@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from backend.app.services.search_service import SearchService
 from backend.app.schemas.api import SearchRequest, SearchResponse
 import asyncio
+from backend.app.errors import RateLimitError, ServiceUnavailableError, UpstreamError, InternalServerError
 
 router = APIRouter(prefix="/api/v1", tags=["search"])
 
@@ -17,5 +18,14 @@ async def search_reddit_consensus(request: SearchRequest):
 
         return result
 
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+        msg = str(e).lower()
+        if "rate" in msg and "limit" in msg:
+            raise RateLimitError()
+        if "unavailable" in msg or "temporar" in msg:
+            raise ServiceUnavailableError()
+        if "bad gateway" in msg or "upstream" in msg:
+            raise UpstreamError()
+        raise InternalServerError()

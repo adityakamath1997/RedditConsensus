@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -10,6 +10,17 @@ const SearchResults = ({ results }) => {
   if (!results) return null;
 
   const { original_query, consensus, reddit_urls_found, posts_analyzed, start_date, end_date, answer_frequency_png, like_count_png } = results;
+
+  // Pagination for reddit source URLs
+  const allUrls = results.reddit_urls || [];
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const totalPages = Math.max(1, Math.ceil(allUrls.length / pageSize));
+  const pageUrls = useMemo(() => allUrls.slice((page - 1) * pageSize, page * pageSize), [allUrls, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [allUrls.length]);
 
   return (
     <div className="results">
@@ -100,13 +111,13 @@ const SearchResults = ({ results }) => {
           </div>
         </div>
       )}
-      {results.reddit_urls && results.reddit_urls.length > 0 && (
+      {allUrls && allUrls.length > 0 && (
   <div className="reddit-sources">
     <h4>📰 Source Posts Analyzed:</h4>
     <div className="url-list">
-      {results.reddit_urls.map((url, index) => (
+      {pageUrls.map((url, index) => (
         <a 
-          key={index} 
+          key={`${page}-${index}`} 
           href={url} 
           target="_blank" 
           rel="noopener noreferrer"
@@ -116,6 +127,27 @@ const SearchResults = ({ results }) => {
         </a>
       ))}
     </div>
+    {totalPages > 1 && (
+      <div className="pagination">
+        <button
+          type="button"
+          className="page-btn"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          Previous
+        </button>
+        <span className="page-info">Page {page} of {totalPages}</span>
+        <button
+          type="button"
+          className="page-btn"
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page === totalPages}
+        >
+          Next
+        </button>
+      </div>
+    )}
   </div>
 )}
     </div>

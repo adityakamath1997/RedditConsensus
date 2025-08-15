@@ -9,16 +9,19 @@ from backend.app.services.plot_service import build_histogram_images
 from dotenv import load_dotenv
 from pprint import pprint
 from colorama import Fore
+import os
 
 load_dotenv()
 
 class SearchService:
-    def __init__(self, comment_depth):
+    def __init__(self, comment_depth=10, model="gpt-4.1-mini"):
+        self.model = model
         self.query_rewriter = QueryRewriterAgent()
         self.tavily_client = TavilySearch()
         self.reddit_client = RedditClient(comment_depth)
-
-    async def search(self, user_query: str, max_results: int = 5, comment_depth: int = 10):
+        
+        
+    async def search(self, user_query: str, max_results: int = 5):
         print(f"Rewriting query: {user_query}")
         rewrite_result = await self.query_rewriter.rewrite_query(user_query)
 
@@ -44,8 +47,8 @@ class SearchService:
             return {"error": "Could not fetch post content"}
 
         print(f"Generating consensus and metrics from {len(post_details)} posts...")
-        consensus_agent = ConsensusAgent(original_query=user_query, post_details=post_details)
-        metrics_agent = MetricsAgent(original_query=user_query, post_details=post_details)
+        consensus_agent = ConsensusAgent(original_query=user_query, post_details=post_details, model=self.model)
+        metrics_agent = MetricsAgent(original_query=user_query, post_details=post_details, model=self.model)
 
 
         consensus, metrics = await asyncio.gather(
