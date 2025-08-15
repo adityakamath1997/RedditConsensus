@@ -1,10 +1,11 @@
 fastapi
-uvicorn[standard]
+uvicorn
 pydantic
 python-dotenv
 httpx
 praw
 tavily-python
-agents
 colorama
 matplotlib
+openai-agents
+openai
