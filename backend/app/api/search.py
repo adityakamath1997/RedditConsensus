@@ -8,7 +8,7 @@ router = APIRouter(prefix="/api/v1", tags=["search"])
 
 
 @router.post("/search", response_model=SearchResponse)
-@limiter.limit("1000/day")
+@limiter.limit("10/day")
 async def search_reddit_consensus(request: Request, payload: SearchRequest):
     try:
         search_service = SearchService(comment_depth=payload.comment_depth)
