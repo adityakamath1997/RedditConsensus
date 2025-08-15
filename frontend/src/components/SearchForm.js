@@ -10,8 +10,7 @@ const SearchForm = ({ onSearch, loading }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      const model = searchType === 'regular' ? 'gpt-4.1-mini' : 'gpt-4.1';
-      onSearch(query.trim(), maxResults, commentDepth, model);
+      onSearch(query.trim(), maxResults, commentDepth);
     }
   };
 

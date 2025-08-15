@@ -10,13 +10,12 @@ const api = axios.create({
   },
 });
 
-export const searchConsensus = async (query, maxResults = 10, commentDepth = 10, model = 'gpt-4.1-mini') => {
+export const searchConsensus = async (query, maxResults = 10, commentDepth = 10) => {
   try {
     const response = await api.post('/search', {
       query,
       max_results: maxResults,
       comment_depth: commentDepth,
-      model,
     });
     return response.data;
   } catch (error) {
