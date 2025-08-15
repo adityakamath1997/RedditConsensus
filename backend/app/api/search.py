@@ -2,14 +2,13 @@ from fastapi import APIRouter, HTTPException, Request
 from app.services.search_service import SearchService
 from app.schemas.api import SearchRequest, SearchResponse
 from app.errors import RateLimitError, ServiceUnavailableError, UpstreamError, InternalServerError
-from slowapi.util import get_remote_address
-from app.main import limit_er
+from app.core.limiter import limiter
 
 router = APIRouter(prefix="/api/v1", tags=["search"])
 
 
 @router.post("/search", response_model=SearchResponse)
-@limit_er.limit("3/day")
+@limiter.limit("3/day")
 async def search_reddit_consensus(request: SearchRequest):
     try:
         search_service = SearchService(comment_depth=request.comment_depth)
