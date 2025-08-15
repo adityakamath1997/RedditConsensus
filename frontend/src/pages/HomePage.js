@@ -1,25 +1,78 @@
 import React, { useState } from 'react';
 import SearchForm from '../components/SearchForm';
 import SearchResults from '../components/SearchResults';
-import { searchConsensus } from '../services/api';
+import ProgressSteps from '../components/ProgressSteps';
+import { searchConsensus, streamConsensus } from '../services/api';
 
 const HomePage = () => {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [progress, setProgress] = useState({
+    rewritten: false,
+    searchComplete: false,
+    urlsFiltered: false,
+    consensus: false,
+    metrics: false,
+  });
+  const [completedSteps, setCompletedSteps] = useState([]);
+  const [eventSource, setEventSource] = useState(null);
 
   const handleSearch = async (query, maxResults, commentDepth) => {
+    // Close any previous stream
+    if (eventSource) {
+      try { eventSource.close(); } catch {}
+    }
+
     setLoading(true);
     setError(null);
     setResults(null);
+    setProgress({ rewritten: false, searchComplete: false, urlsFiltered: false, consensus: false, metrics: false });
+    setCompletedSteps([]);
 
     try {
-      const data = await searchConsensus(query, maxResults, commentDepth);
-      setResults(data);
+      // Start streaming progress; also request full result after stream completes for fallback
+      const es = streamConsensus({
+        query,
+        maxResults,
+        commentDepth,
+        handlers: {
+          onRewritten: () => {
+            setProgress((p) => ({ ...p, rewritten: true }));
+            setCompletedSteps((s) => Array.from(new Set([...s, 'Rewrote your query'])));
+          },
+          onSearchComplete: () => {
+            setProgress((p) => ({ ...p, searchComplete: true }));
+            setCompletedSteps((s) => Array.from(new Set([...s, 'Searched Reddit'])));
+          },
+          onUrlsFiltered: () => {
+            setProgress((p) => ({ ...p, urlsFiltered: true }));
+            setCompletedSteps((s) => Array.from(new Set([...s, 'Filtered relevant URLs'])));
+          },
+          onConsensus: () => {
+            setProgress((p) => ({ ...p, consensus: true }));
+            setCompletedSteps((s) => Array.from(new Set([...s, 'Generated consensus'])));
+          },
+          onMetrics: () => {
+            setProgress((p) => ({ ...p, metrics: true }));
+            setCompletedSteps((s) => Array.from(new Set([...s, 'Computed metrics'])));
+          },
+          onDone: (payload) => {
+            setResults(payload);
+            setLoading(false);
+            try { es.close(); } catch {}
+          },
+          onError: (e) => {
+            // Fallback: attempt non-streaming request if stream fails
+            console.debug('SSE error', e);
+          },
+        }
+      });
+      setEventSource(es);
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      // Keep loading until stream sends done
     }
   };
 
@@ -33,10 +86,7 @@ const HomePage = () => {
       <SearchForm onSearch={handleSearch} loading={loading} />
 
       {loading && (
-        <div className="loading">
-          <p>🔍 Analyzing Reddit posts...</p>
-          <p>This make take more than a minute depending on the number of results. </p>
-        </div>
+        <ProgressSteps completedSteps={completedSteps} loading={loading} />
       )}
 
       {error && (

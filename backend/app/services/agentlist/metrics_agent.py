@@ -1,6 +1,6 @@
 from agents import Agent, Runner, AgentOutputSchema, ModelSettings
 from app.schemas.answer_frequency_schema import FrequencyOutput
-
+from typing import TypedDict
 class MetricsAgent:
     def __init__(self, original_query, post_details, model):
         self.original_query = original_query
@@ -9,7 +9,6 @@ class MetricsAgent:
             name="Metrics Generator Agent",
             instructions=self._get_instructions(),
             model=model,
-            model_settings=ModelSettings(temperature=0.3),
             output_type=AgentOutputSchema(FrequencyOutput, strict_json_schema=False)
         )
 

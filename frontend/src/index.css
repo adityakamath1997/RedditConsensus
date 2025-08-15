@@ -145,6 +145,95 @@ body {
   color: var(--text-dim);
 }
 
+/* Progressive steps */
+.progress {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0 24px;
+}
+
+.progress-header {
+  margin-bottom: 10px;
+}
+
+.progress-title {
+  font-weight: 600;
+}
+
+.progress-sub {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+
+.progress-bar {
+  position: relative;
+  height: 10px;
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+.progress-bar-meta {
+  text-align: right;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+
+.progress-steps {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.step-item.done {
+  border-left: 4px solid var(--success);
+}
+
+.step-item.current {
+  border-left: 4px solid var(--accent);
+}
+
+.step-icon {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.step-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .results {
   background: var(--panel);
   padding: 30px;

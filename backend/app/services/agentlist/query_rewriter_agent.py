@@ -1,4 +1,4 @@
-from agents import Agent, Runner, function_tool, AgentOutputSchema
+from agents import Agent, Runner, function_tool, AgentOutputSchema, ModelSettings
 from datetime import datetime
 from app.schemas.rewriter_schema import QueryRewriteOutput
 
@@ -8,6 +8,7 @@ class QueryRewriterAgent:
             name="Query Parser Agent",
             instructions=self._get_instructions(),
             model="o4-mini",
+            model_settings=ModelSettings(max_tokens=500),
             tools=[self._get_current_time],
             output_type=AgentOutputSchema(QueryRewriteOutput),
         )

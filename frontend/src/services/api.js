@@ -30,3 +30,31 @@ export const searchConsensus = async (query, maxResults = 10, commentDepth = 10)
 };
 
 export default api;
+
+// Server-Sent Events streaming helper
+export const streamConsensus = ({ query, maxResults = 10, commentDepth = 10, handlers = {} }) => {
+  const { onRewritten, onSearchComplete, onUrlsFiltered, onConsensus, onMetrics, onDone, onError } = handlers;
+
+  const url = `${API_BASE_URL}/search/stream?query=${encodeURIComponent(query)}&max_results=${encodeURIComponent(maxResults)}&comment_depth=${encodeURIComponent(commentDepth)}`;
+
+  const es = new EventSource(url);
+
+  if (onRewritten) es.addEventListener('rewritten', (e) => onRewritten(JSON.parse(e.data)));
+  if (onSearchComplete) es.addEventListener('search_complete', (e) => onSearchComplete(JSON.parse(e.data)));
+  if (onUrlsFiltered) es.addEventListener('urls_filtered', (e) => onUrlsFiltered(JSON.parse(e.data)));
+  if (onConsensus) es.addEventListener('consensus_generated', (e) => onConsensus(JSON.parse(e.data)));
+  if (onMetrics) es.addEventListener('metrics_generated', (e) => onMetrics(JSON.parse(e.data)));
+  if (onDone) es.addEventListener('done', (e) => onDone(JSON.parse(e.data)));
+
+  es.addEventListener('error', (e) => {
+    try {
+      const payload = e.data ? JSON.parse(e.data) : { message: 'Stream error' };
+      onError && onError(payload);
+    } catch {
+      onError && onError({ message: 'Stream error' });
+    }
+    // Do not auto-close; let the caller decide. Some browsers fire 'error' on CORS retries.
+  });
+
+  return es;
+};

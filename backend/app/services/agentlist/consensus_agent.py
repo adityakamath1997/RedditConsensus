@@ -9,7 +9,7 @@ class ConsensusAgent:
             name="Consensus Generator",
             instructions=self._get_instructions(),
             model=model,
-            model_settings=ModelSettings(temperature=0.3),
+            model_settings=ModelSettings(temperature=0.3, max_tokens=1000),
             output_type=AgentOutputSchema(ConsensusOutput)
         )
 

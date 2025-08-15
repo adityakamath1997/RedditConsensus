@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Dict, Optional
+
 class FrequencyOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     reasoning: Optional[str] = Field(default="", description="How it calculated metrics")
