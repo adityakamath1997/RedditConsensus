@@ -5,12 +5,8 @@ from app.services.agentlist.metrics_agent import MetricsAgent
 from app.services.agentlist.relevance_checker_agent import RelevanceCheckerAgent
 from app.services.reddit_client import RedditClient
 from app.services.tavily_client import TavilySearch
-from agents import trace
 from app.services.plot_service import build_histogram_images
 from dotenv import load_dotenv
-from pprint import pprint
-from colorama import Fore
-import os
 
 load_dotenv()
 

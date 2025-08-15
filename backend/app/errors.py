@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+
 
 
 class BaseAppError(Exception):

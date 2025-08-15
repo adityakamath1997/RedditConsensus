@@ -9,3 +9,4 @@ colorama
 matplotlib
 openai-agents
 openai
+asyncio

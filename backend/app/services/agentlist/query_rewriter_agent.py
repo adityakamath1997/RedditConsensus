@@ -1,8 +1,6 @@
-from agents import Agent, Runner, function_tool, ModelSettings, AgentOutputSchema
+from agents import Agent, Runner, function_tool, AgentOutputSchema
 from datetime import datetime
 from app.schemas.rewriter_schema import QueryRewriteOutput
-import asyncio
-from agents.extensions.models.litellm_model import LitellmModel
 
 class QueryRewriterAgent:
     def __init__(self):

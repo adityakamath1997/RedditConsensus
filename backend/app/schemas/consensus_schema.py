@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-from app.schemas.answer_frequency_schema import FrequencyOutput
 
 class ConsensusAdditionalInfo(BaseModel):
     reasons: list[str] = Field(
