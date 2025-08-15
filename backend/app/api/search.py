@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from backend.app.services.search_service import SearchService
-from backend.app.schemas.api import SearchRequest, SearchResponse
+from app.services.search_service import SearchService
+from app.schemas.api import SearchRequest, SearchResponse
 import asyncio
-from backend.app.errors import RateLimitError, ServiceUnavailableError, UpstreamError, InternalServerError
+from app.errors import RateLimitError, ServiceUnavailableError, UpstreamError, InternalServerError
 
 router = APIRouter(prefix="/api/v1", tags=["search"])
 

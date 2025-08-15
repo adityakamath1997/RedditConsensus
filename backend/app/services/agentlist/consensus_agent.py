@@ -1,5 +1,5 @@
 from agents import Agent, Runner, ModelSettings, AgentOutputSchema
-from backend.app.schemas.consensus_schema import ConsensusOutput
+from app.schemas.consensus_schema import ConsensusOutput
 
 class ConsensusAgent:
     def __init__(self, original_query, post_details, model):

@@ -1,5 +1,5 @@
 from agents import Agent, Runner, AgentOutputSchema, ModelSettings
-from backend.app.schemas.answer_frequency_schema import FrequencyOutput
+from app.schemas.answer_frequency_schema import FrequencyOutput
 
 class MetricsAgent:
     def __init__(self, original_query, post_details, model):

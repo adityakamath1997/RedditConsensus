@@ -1,6 +1,6 @@
 from agents import Agent, Runner, function_tool, ModelSettings, AgentOutputSchema
 from datetime import datetime
-from backend.app.schemas.rewriter_schema import QueryRewriteOutput
+from app.schemas.rewriter_schema import QueryRewriteOutput
 import asyncio
 from agents.extensions.models.litellm_model import LitellmModel
 

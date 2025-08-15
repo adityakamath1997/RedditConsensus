@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from backend.app.schemas.answer_frequency_schema import FrequencyOutput
+from app.schemas.answer_frequency_schema import FrequencyOutput
 
 class SearchRequest(BaseModel):
     query: str = Field(description="User's search query")

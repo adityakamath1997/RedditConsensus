@@ -88,10 +88,8 @@ Top Comments:
                 "top_comments": post_comment_details,
             }
 
-            print(f"Post details for {url} retrieved")
 
             return post_details
 
         except Exception as e:
-            print(f"Exception occurred!: {e}")
             return None

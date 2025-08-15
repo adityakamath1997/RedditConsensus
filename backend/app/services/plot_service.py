@@ -9,7 +9,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from backend.app.schemas.answer_frequency_schema import FrequencyOutput
+from app.schemas.answer_frequency_schema import FrequencyOutput
 from textwrap import fill
 
 
