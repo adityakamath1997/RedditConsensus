@@ -61,6 +61,8 @@ async def search_reddit_consensus_stream(request: Request, query: str, max_resul
             # Only emit non-sensitive summary stats (no prompts/post content)
             yield await sse_event("rewritten", {
                 "num_queries": len(rewrite_result.queries or []),
+                "start_date": rewrite_result.start_date,
+                "end_date": rewrite_result.end_date,
             })
 
             # 2) Reddit search
