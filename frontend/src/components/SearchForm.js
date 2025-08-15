@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 const SearchForm = ({ onSearch, loading }) => {
   const [query, setQuery] = useState('');
   const [maxResults, setMaxResults] = useState(10);
+  const [commentDepth, setCommentDepth] = useState(10);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      onSearch(query.trim(), maxResults);
+      onSearch(query.trim(), maxResults, commentDepth);
     }
   };
 
@@ -36,6 +37,29 @@ const SearchForm = ({ onSearch, loading }) => {
           onChange={(e) => setMaxResults(parseInt(e.target.value))}
           disabled={loading}
         />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="commentDepth">Max top comments per post</label>
+        <select
+          id="commentDepth"
+          value={commentDepth}
+          onChange={(e) => setCommentDepth(parseInt(e.target.value))}
+          disabled={loading}
+        >
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={15}>15</option>
+          <option value={20}>20</option>
+          <option value={25}>25</option>
+        </select>
+      </div>
+
+      <div className="form-note">
+        <p>
+          Increasing <strong>Max results</strong> and <strong>Max top comments</strong> includes more opinions and can improve coverage,
+          but may significantly increase processing time.
+        </p>
       </div>
       
       <button 

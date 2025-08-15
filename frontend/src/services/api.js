@@ -9,11 +9,12 @@ const api = axios.create({
   },
 });
 
-export const searchConsensus = async (query, maxResults = 10) => {
+export const searchConsensus = async (query, maxResults = 10, commentDepth = 10) => {
   try {
     const response = await api.post('/search', {
       query,
       max_results: maxResults,
+      comment_depth: commentDepth,
     });
     return response.data;
   } catch (error) {
