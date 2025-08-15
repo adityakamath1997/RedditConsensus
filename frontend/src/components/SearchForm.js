@@ -24,7 +24,7 @@ const SearchForm = ({ onSearch, loading }) => {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="'Best tv shows to binge-watch', 'Predictions for the next 10 years. Find posts from 2010 to 2015'"
+          placeholder="'Best tv shows to binge-watch', 'Predictions for the year 2020 from posts made in 2010 to 2015'"
           disabled={loading}
         />
       </div>
