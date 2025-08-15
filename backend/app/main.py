@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.api.search import router as search_router
+from app.api.search import router as search_router
 from dotenv import load_dotenv
 
 load_dotenv()
