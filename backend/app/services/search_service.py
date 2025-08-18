@@ -1,4 +1,5 @@
 import asyncio
+from agents import trace
 from app.services.agentlist.query_rewriter_agent import QueryRewriterAgent
 from app.services.agentlist.consensus_agent import ConsensusAgent
 from app.services.agentlist.metrics_agent import MetricsAgent
@@ -28,41 +29,43 @@ class SearchService:
             start_date=rewrite_result.start_date,
             end_date=rewrite_result.end_date,
         )
-        relevance_agent = RelevanceCheckerAgent(original_query=original_query)
 
-        relevance_check = await relevance_agent.get_relevance(reddit_urls)
+        with trace("Reddit Consensus Workflow"):
+            relevance_agent = RelevanceCheckerAgent(original_query=original_query)
 
-        relevant_reddit_urls = [url for url, flag in zip(reddit_urls, relevance_check) if flag]
+            relevance_check = await relevance_agent.get_relevance(reddit_urls)
 
-
-        if not reddit_urls:
-            return f"Error: No Reddit posts found"
+            relevant_reddit_urls = [url for url, flag in zip(reddit_urls, relevance_check) if flag]
 
 
-        post_details = await self.reddit_client.get_posts_content(relevant_reddit_urls)
-
-        if not post_details:
-            return {"error": "Could not fetch post content"}
-
-        consensus_agent = ConsensusAgent(original_query=original_query, post_details=post_details, model=self.model)
-        metrics_agent = MetricsAgent(original_query=original_query, post_details=post_details, model=self.model)
+            if not reddit_urls:
+                return f"Error: No Reddit posts found"
 
 
-        consensus, metrics = await asyncio.gather(
-            consensus_agent.get_consensus(), metrics_agent.get_metrics(),
-        )   
+            post_details = await self.reddit_client.get_posts_content(relevant_reddit_urls)
 
-        histogram_images = build_histogram_images(metrics, max_bars=15)
+            if not post_details:
+                return {"error": "Could not fetch post content"}
+
+            consensus_agent = ConsensusAgent(original_query=original_query, post_details=post_details, model=self.model)
+            metrics_agent = MetricsAgent(original_query=original_query, post_details=post_details, model=self.model)
+
+
+            consensus, metrics = await asyncio.gather(
+                consensus_agent.get_consensus(), metrics_agent.get_metrics(),
+            )   
+
+            histogram_images = build_histogram_images(metrics, max_bars=15)
 
         return {
-            "original_query": user_query,
-            "start_date": rewrite_result.start_date,
-            "end_date": rewrite_result.end_date,
-            "posts_analyzed": len(post_details),
-            "reddit_urls": relevant_reddit_urls,  # Relevant URLs only
-            "consensus": consensus,
-            "metrics": metrics,
-            "answer_frequency_png": histogram_images.get("answer_frequency_png"),
-            "like_count_png": histogram_images.get("like_count_png"),
-        }
+                "original_query": user_query,
+                "start_date": rewrite_result.start_date,
+                "end_date": rewrite_result.end_date,
+                "posts_analyzed": len(post_details),
+                "reddit_urls": relevant_reddit_urls,  # Relevant URLs only
+                "consensus": consensus,
+                "metrics": metrics,
+                "answer_frequency_png": histogram_images.get("answer_frequency_png"),
+                "like_count_png": histogram_images.get("like_count_png"),
+            }
 
